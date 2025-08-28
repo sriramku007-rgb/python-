@@ -42,4 +42,5 @@ except ValueError:
     except ValueError:
          print("Data type: string")
 
-        print("Data type: string")
+        
+
