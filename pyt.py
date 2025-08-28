@@ -33,14 +33,13 @@ print (f"not: {not_ok}")
 
 user_input = input("Enter something:")
 try:
-    # Try converting to integer
     val = int(user_input)
     print("Data type: int")
 except ValueError:
     try:
-        # Try converting to float
         val = float(user_input)
         print("Data type: float")
     except ValueError:
-        # If both fail, it's a string
+         print("Data type: string")
+
         print("Data type: string")
