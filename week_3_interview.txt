@@ -1,0 +1,90 @@
+1.Write the exact SQL query to fetch the top 3 highest salary employees from an employees table.
+SELECT *
+FROM employees
+ORDER BY salary DESC
+LIMIT 3;
+
+2.Write a SQL query to count how many students are enrolled per department and show only departments with more than 10 students.
+
+SELECT department,COUNT(student_id) AS 
+total_students
+FROM students
+GROUP BY department
+HAVING COUNT(student_id) > 10;
+
+3.Write a Python function that inserts a new student record (id, name, marks) into a SQLite table called students.
+
+import sqlite3
+
+def insert_student(id, name, marks):
+    
+    conn = sqlite3.connect('school.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            marks REAL
+        )
+    ''')
+    
+    cursor.execute('INSERT INTO students (id, name, marks) VALUES (?, ?, ?)', (id, name, marks))
+    
+    conn.commit()
+    conn.close()
+    print(" Student record inserted successfully!")
+
+insert_student(1, 'Alice', 88.5)
+
+4.Given two tables students(id, name, class_id) and classes(id, class_name), write a query to display student name along with their class name.
+
+SELECT 
+students.name AS student_name,
+classes.class_name
+FROM students
+INNER JOIN classes
+ON students.class_id = classes.id;
+
+5.Write a Python + SQL pseudocode to update a student’s marks where id = 5, and then fetch and print the updated record.
+
+import sqlite3
+
+def update_and_fetch_student(new_marks):
+    conn = sqlite3.connect('school.db')
+    cursor = conn.cursor()
+    cursor.execute('UPDATE students SET marks = ? WHERE id = ?', (new_marks, 5))
+    conn.commit()
+    cursor.execute('SELECT * FROM students WHERE id = ?', (5,))
+    student = cursor.fetchone()
+    print("Updated Record:", student)
+    conn.close()
+
+6.You are building a Library Management System. Design a minimal table structure (just table names and columns) to manage books, borrowers, and transactions.
+
+BOOKS
+| Column Name      | Data Type    | Description                          |
+| ---------------- | ------------ | ------------------------------------ |
+| book_id          | INTEGER (PK) | Unique ID for each book              |
+| title            | TEXT         | Title of the book                    |
+| author           | TEXT         | Author of the book                   |
+| genre            | TEXT         | Category or genre                    |
+| available_copies | INTEGER      | Number of copies currently available |
+
+BORROWERS
+| Column Name | Data Type    | Description                 |
+| ----------- | ------------ | --------------------------- |
+| borrower_id | INTEGER (PK) | Unique ID for each borrower |
+| name        | TEXT         | Borrower’s full name        |
+| email       | TEXT         | Borrower’s email address    |
+| phone       | TEXT         | Contact number              |
+
+TRANSACTIONS
+| Column Name    | Data Type                            | Description                                   |
+| -------------- | ------------------------------------ | --------------------------------------------- |
+| transaction_id | INTEGER (PK)                         | Unique ID for each transaction                |
+| borrower_id    | INTEGER (FK → borrowers.borrower_id) | Who borrowed the book                         |
+| book_id        | INTEGER (FK → books.book_id)         | Which book was borrowed                       |
+| issue_date     | DATE                                 | Date when the book was issued                 |
+| due_date       | DATE                                 | Date when the book is due                     |
+| return_date    | DATE (NULLABLE)                      | Date when the book was returned (if returned) |
