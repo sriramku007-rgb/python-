@@ -1,0 +1,64 @@
+
+ <!-- 5 day
+1. What is the difference between DOM properties and DOM methods? Give two examples of each.
+
+  DOM Properties
+ Definition:
+ Properties are values or attributes that describe the state or characteristics of a DOM element.
+ Accessed directly using dot (.) notation. -->
+
+
+ <!-- DOM Methods
+ Definition:
+ Methods are functions (actions) that you can call on DOM elements to perform tasks or manipulate the DOM.
+ Used to: Create, add, remove, or find elements dynamically -->
+
+ 
+
+<!-- 2. Write JavaScript code to select an element by its id and change its background color when a button is clicked. -->
+
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<p id="demo"></p>
+
+<script>
+document.getElementById("demo").innerHTML = "Hello World!";
+</script>
+
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change Background Color</title>
+</head>
+<body>
+
+  <div id="colorBox" style="width:200px; height:100px; background-color:red; text-align:center; line-height:100px;">
+    Click the button below!
+  </div>
+
+
+  <button onclick="changeColor()">Change Color</button>
+
+  <!-- JavaScript -->
+  <script>
+    function changeColor() {
+      // Select the element by its id
+      const box = document.getElementById("colorBox");
+
+
+      box.style.backgroundColor = "yellow";
+    }
+  </script>
+
+</body>
+</html>
