@@ -1,0 +1,225 @@
+1. Explain the difference between URI and URL with examples.
+
+URI
+A URI is a general identifier for a resource (like a document, image, or service) on the Internet.
+It can locate or name a resource, or both.
+A URL is actually a type of URI that tells you how to access the resource (like using http, ftp, etc.)
+https://example.com/resource
+mailto:info@example.com
+urn:isbn:0451450523
+
+URL
+A URL is a specific kind of URI that tells both the location and how to access the resource.
+It always includes:
+Protocol (scheme) → http, https, ftp, etc.
+Domain name or IP address
+Optionally, a path or query
+https://www.wikipedia.org/wiki/URI
+ftp://ftp.example.com/file.txt
+
+2. What are the common HTTP methods? Describe when each is typically used.
+
+GET
+Purpose: Retrieve data from the server.
+Use: Used when you want to read or fetch data without changing it.
+GET /products
+
+POST
+Purpose: Send data to the server to create a new resource.
+Use: Used when submitting forms, uploading files, or adding data.
+POST /users
+
+PUT
+Purpose: Update or replace an existing resource.
+Use: When you want to replace the entire resource with new data.
+PUT /users/10
+
+PATCH
+Purpose: Partially update an existing resource.
+Use: When you only want to change specific fields.
+PATCH /users/10
+
+DELETE
+Purpose: Remove a resource from the server.
+Use: When you want to delete data.
+DELETE /users/10
+
+HEAD
+Purpose: Same as GET, but only returns headers, not the body.
+Use: Check if a resource exists or get metadata without downloading the full content.
+HEAD /file.pdf
+
+OPTIONS
+Purpose: Describes the communication options for the target resource.
+Use: Used to find which HTTP methods are allowed for a resource.
+OPTIONS /users
+
+3. What is the purpose of status codes? Give examples of 200, 404, and 500.
+
+200 – OK
+Meaning: The request was successful, and the server returned the expected response.
+When used:
+Page loads correctly
+API returns data successfully
+GET /products → 200 OK
+
+404 – Not Found
+Meaning: The server couldn’t find the requested resource (URL is incorrect or missing).
+When used:
+User tries to access a non-existent webpage
+GET /products/999 → 404 Not Found
+
+500 – Internal Server Error
+Meaning: The server encountered an unexpected problem and couldn’t complete the request.
+When used:
+Bug in server code
+Database connection error
+GET /users → 500 Internal Server Error
+
+4. How does a client–server request/response cycle work in HTTP?
+
+Client Sends a Request
+The client (browser, app, etc.) starts the communication.
+It sends an HTTP request to the server containing:
+URL – identifies the resource
+Method – type of action (GET, POST, etc.)
+Headers – extra info (like browser type, content type)
+Body (optional) – data sent to the server (for POST/PUT requests)
+GET /products HTTP/1.1
+Host: www.example.com
+User-Agent: Chrome/141.0
+Accept: application/json
+
+Server Processes the Request
+The server receives the request.
+It performs the required action — for example:
+Fetch data from a database
+Process user input
+Generate a webpage
+
+Server Sends a Response
+After processing, the server sends an HTTP response back to the client.
+It includes:
+Status Code – result of the request (200, 404, 500, etc.)
+Headers – metadata (e.g., content type, date)
+Body – actual content (HTML, JSON, etc.)
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 58
+{
+  "id": 1,
+  "name": "Smartphone",
+  "price": 15000
+}
+
+Client Displays or Uses the Response
+The browser renders a webpage,
+or
+An app uses the returned data (like showing products in a list).
+Client (Browser)
+     ↓
+ [1] Sends HTTP Request (GET /index.html)
+     ↓
+Server (Website)
+     ↓
+ [2] Processes Request
+     ↓
+ [3] Sends HTTP Response (200 OK + HTML)
+     ↓
+Client
+     ↓
+ [4] Displays Page to User
+
+5. Explain how DNS translates domain names to IP addresses.
+
+User Enters the Domain
+You type www.example.com in the browser’s address bar.
+The browser checks its cache to see if it already knows the IP address.
+
+Check Local DNS Cache
+If not in the browser cache, it asks the operating system (OS).
+The OS checks:
+Its own cache
+The hosts file (a local mapping file)
+
+Query Sent to DNS Resolver
+If still not found, the request goes to a DNS resolver (usually provided by your ISP or Google DNS like 8.8.8.8).
+The resolver’s job is to find the IP address by asking other DNS servers.
+
+Resolver Contacts Root DNS Server
+The resolver asks a Root DNS Server where to find info for .com domains.
+The Root Server replies with the address of a TLD (Top-Level Domain) server — for .com.
+
+Resolver Contacts TLD Server
+The resolver asks the TLD server for example.com.
+The TLD server replies with the address of the Authoritative DNS Server for example.com.
+
+Resolver Contacts Authoritative DNS Server
+The Authoritative Server contains the real IP address of www.example.com.
+It responds:
+www.example.com → 93.184.216.34
+
+Response Sent Back
+The resolver sends this IP address back to your browser.
+The browser caches it for next time and connects to that IP.
+
+6. What’s the difference between HTTP and HTTPS, and why is HTTPS more secure?
+
+HTTP
+When you visit a site using http://, all communication (like login info, messages, etc.) is sent in plain text.
+Hackers on the same network (like public Wi-Fi) can see or modify the data.
+If you log in via HTTP, your username and password could be stolen easily.
+
+HTTPS
+HTTPS uses SSL (Secure Sockets Layer) or TLS (Transport Layer Security).
+These protocols encrypt data between your browser and the web server.
+4gH@#91kdL0!zAq...
+username=John&password=12345
+
+7. What is the use of query parameters in a URL? Provide an example.
+
+URL
+Query parameters are key–value pairs added to a URL to send extra information to the server — usually for filtering, searching, sorting, or tracking purposes.
+They come after a question mark (?) in the URL and are separated by ampersands (&) if there are multiple parameters.
+https://example.com/products?category=electronics&sort=price&order=asc
+
+8. Trace and explain an example request/response cycle using developer tools.
+
+Open Developer Tools
+In Google Chrome / Edge:
+Press F12 or Ctrl + Shift + I
+Go to the Network tab.
+In Firefox:
+
+Load a Website
+Type a URL, for example:
+https://www.wikipedia.org
+Press Enter — the page loads.
+You’ll now see a list of network requests made by your browser (HTML, CSS, JS, images, etc.).
+
+Select a Request
+Click on the first request (usually the main page) — e.g., www.wikipedia.org.
+You’ll see detailed information about the request and the response.
+
+Examine the HTTP Request
+In the Headers tab, you’ll find details like 👇
+GET / HTTP/1.1
+Host: www.wikipedia.org
+
+Examine the HTTP Response
+In the same Headers tab or Response tab, you’ll see what the server sent back.
+Response Status:
+HTTP/1.1 200 OK
+
+View Additional Requests
+The browser also makes other requests automatically:
+CSS files (style.css)
+JavaScript files (main.js)
+Images (logo.png)
+Each of these has its own request and response cycle you can inspect.
+
+9. When you see a “301 Moved Permanently” response, what does it mean?
+
+The HTTP status code 301 means that the requested resource (webpage or file) has been permanently moved to a new URL
+HTTP/1.1 301 Moved Permanently
+Location: https://example.com/new-page
