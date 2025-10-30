@@ -1,0 +1,171 @@
+1. Define monolithic architecture and list its pros and cons.
+
+A monolithic architecture is a single-tiered software design where all components of an application —
+like the user interface (UI), business logic, and database access — are combined into one unified codebase and deployed as a single unit.
+Product listing
+Cart system
+Payment handling
+User management
+Database connection
+
+Advantage	Explanation
+1. Simple to develop	Easier to build initially because everything is in one codebase.
+2. Easy to test	You can test the whole application as a single unit.
+3. Simple deployment	Only one package or file to deploy (no coordination between multiple services).
+4. Better performance (initially)	Communication between components happens in the same process, making it fast.
+5. Easier debugging Logs and errors are centralized in one place.
+
+2. What is microservices architecture, and when should it be used?
+
+Microservices Architecture
+Large and complex — with many different features or business domains.
+Growing rapidly — requiring frequent updates or new features.
+Developed by multiple teams — each can work independently on separate services.
+Needing scalability — scale only specific services (e.g., payment or search).
+Requiring flexibility — different services can use different technologies or languages.
+
+Advantage	Explanation
+1. Independent deployment	You can update or deploy one service without affecting others.
+2. Easier scalability	Scale only the services that need more resources.
+3. Technology flexibility	Each service can use the best language or framework for its job.
+4. Faster development	Different teams can work on different services simultaneously.
+5. Fault isolation	If one service fails, others can still run.
+
+3. Compare frontend vs backend — what are their main responsibilities?
+
+Frontend 
+Definition:
+The frontend is the visible part of a website or web app — what users see and interact with in their browser.
+Responsibility	Description
+1. User Interface (UI)	Designing and displaying the visual layout — buttons, menus, forms, etc.
+2. User Experience (UX)	Ensuring smooth, attractive, and user-friendly interactions.
+3. Handling Input	Capturing user actions (like clicks, typing, form submissions).
+4. Communication with Backend	Sending and receiving data via HTTP requests (e.g., using fetch() or AJAX).
+5. Responsive Design	Making the website look good on all devices (desktop, mobile, tablet).
+Languages: HTML, CSS, JavaScript
+Frameworks/Libraries: React, Angular, Vue.js, Bootstrap
+
+Backend
+Definition:
+The backend is the behind-the-scenes part of a website or app — it handles data processing, business logic, and communication with the database.
+Responsibility	Description
+1. Data Management	Storing, retrieving, and updating data in the database.
+2. Business Logic	Performing calculations, validations, and decisions based on rules.
+3. API Creation	Exposing endpoints for the frontend to communicate with (e.g., /api/users).
+4. Authentication & Security	Managing user login, permissions, and protecting sensitive data.
+5. Server Management	Handling requests, responses, and server performance.
+Languages: Python, Java, PHP, Node.js, Ruby, C#
+Frameworks: Express.js, Django, Spring Boot, Laravel
+Databases: MySQL, MongoDB, PostgreSQL, SQLite
+
+4. Explain how to create and activate a new Conda environment.
+
+Create a New Conda Environment
+conda create --name myenv
+conda create --name myenv python=3.10
+
+Activate the Environment
+Once created, activate it using:
+On Windows:
+conda activate myenv
+On macOS / Linux:
+source activate myenv
+After activation, your command prompt will change — showing the active environment name:
+(myenv) C:\Users\YourName>
+
+Install Packages (Optional)
+You can install any package (like NumPy, Pandas, etc.) inside your environment:
+conda install numpy pandas
+
+Deactivate the Environment
+When you’re done, deactivate it using:
+conda deactivate
+This returns you to the base environment.
+
+5. How do you export and share a Conda environment with others?
+
+Export the Environment
+Use this command to export your current environment:
+conda env export > environment.yml
+name: myenv
+dependencies:
+  - python=3.10
+  - numpy=1.26.0
+  - pandas=2.1.1
+  - matplotlib=3.8.0
+  - pip:
+      - requests==2.31.0
+
+Share the File
+You can now share the environment.yml file with others —
+for example, include it in your GitHub project or send it by email.
+
+Recreate the Environment on Another System
+The other person can recreate the same environment using:
+conda env create -f environment.yml
+
+Activate the New Environment
+Once created, they can activate it using:
+conda activate myenv
+
+6. What is the difference between a package and a channel in Conda?
+
+Package
+A package in Conda is a collection of files that provide specific functionality — such as Python libraries,
+utilities, or dependencies.
+conda install numpy
+
+Channel
+A channel is a source or repository where Conda searches for packages.
+Think of it like an “app store” for Conda packages.
+conda install -c conda-forge numpy
+
+7. Give an example of when microservices are preferred over monolithic.
+
+Microservices are preferred when an application is large, complex, and needs to scale or update 
+quickly without affecting the entire system.
+
+Monolithic Architecture
+The entire app (user login, product catalog, cart, payments, reviews, etc.) is part of one single codebase.
+If you update one feature (like payments), you must redeploy the whole app.
+Scaling one component (like search) means scaling everything — wasting resources.
+
+8. How do you install Django in a Conda environment?
+
+Create a New Conda Environment (Optional)
+
+conda create --name myenv python=3.10
+
+conda activate myenv
+
+(myenv) C:\Users\YourName>
+
+Install Django
+conda install django
+
+Verify Installatio
+django-admin --version
+
+5.1.2
+
+
+Create a Django Project
+
+django-admin startproject myproject
+
+cd myproject
+
+python manage.py runserver
+
+http://127.0.0.1:8000/
+
+9. If two projects require different versions of Django, how does Conda help manage this?
+
+Each Conda environment has its own set of installed packages and versions, separate from others.
+So, you can install different Django versions in different environments without conflict.
+
+conda create -n projectA python=3.10 django=3.2
+conda create -n projectB python=3.12 django=5.0
+
+conda activate projectA  
+conda activate projectB  
