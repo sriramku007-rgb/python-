@@ -1,0 +1,335 @@
+1. What is Poetry and how does it differ from pip + virtualenv?
+
+Poetry manages three main aspects of a Python project:
+Dependencies: installs, updates, and locks package versions.
+Virtual environments: automatically creates and uses them per project.
+Packaging: builds and publishes your project as a distributable package (to PyPI, for example).
+pyproject.toml → stores project metadata and dependencies.
+poetry.lock → locks exact versions for reproducibility.
+
+python -m venv venv
+source venv/bin/activate  
+pip install flask requests
+pip freeze > requirements.txt
+
+2. How do you initialize a new Poetry project and add dependencies?
+
+Install Poetry (if not already installed)
+curl -sSL https://install.python-poetry.org | python3 -
+poetry --version
+
+Create (Initialize) a New Project
+poetry new my_project
+my_project/
+├── pyproject.toml       ← Project metadata & dependencies
+├── README.md
+├── my_project/
+│   └── __init__.py
+└── tests/
+    └── __init__.py
+
+Initialize in an existing folder
+cd my_existing_project
+poetry init
+
+Add Dependencies
+poetry add package_name
+poetry add requests flask
+
+Activate the Virtual Environment
+poetry shell
+Now you’re inside the Poetry-managed virtual environment — you can run Python or scripts safely.
+(Alternatively, use poetry run python app.py without entering the shell.)
+
+Add Dev Dependencies (optional)
+poetry add --dev pytest black
+poetry new my_app
+cd my_app
+poetry add flask requests
+poetry add --dev pytest
+poetry shell
+
+3. What command installs all dependencies from the Poetry lock file?
+
+poetry install
+poetry install
+
+Optional flags:
+--no-root → install dependencies but not the current project package
+--only main → install only main (non-dev) dependencies
+--only dev → install only development dependencies
+
+4. Explain Django’s MVT architecture. How is it different from MVC?
+
+Suppose a user visits /students/ to view a student list:
+URLconf routes /students/ → views.student_list
+View (views.py) gets data from Model (models.py)
+Model fetches students from the database
+View sends the data to Template (student_list.html)
+Template displays the students in an HTML page
+
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+
+from django.shortcuts import render
+from .models import Student
+
+def student_list(request):
+    students = Student.objects.all()
+    return render(request, 'student_list.html', {'students': students})
+
+<h2>Student List</h2>
+<ul>
+  {% for student in students %}
+    <li>{{ student.name }} - {{ student.age }}</li>
+  {% endfor %}
+</ul>
+
+5. What is the purpose of views.py and urls.py in a Django project?
+
+Purpose of views.py
+views.py contains view functions or classes that define how your application responds to a specific request.
+Takes an HTTP request as input
+Performs some logic (e.g., fetch data from the database)
+Returns an HTTP response (usually an HTML page, JSON, or redirect)
+from django.http import HttpResponse
+from django.shortcuts import render
+from .models import Student
+
+def home(request):
+    return HttpResponse("Welcome to the Student Portal")
+
+def student_list(request):
+    students = Student.objects.all()
+    return render(request, 'student_list.html', {'students': students})
+
+Purpose of urls.py
+urls.py defines URL routing — it maps URL patterns (like /home or /students/) to their corresponding view functions.
+When a user visits a URL, Django uses urls.py to decide which view should handle that request.
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('students/', views.student_list, name='student_list'),
+]
+
+6. How do you start a new Django project and create your first app?
+
+Install Django
+pip install django
+django-admin --version
+
+Create a New Django Project
+django-admin startproject projectname
+django-admin startproject mysite
+mysite/
+├── manage.py
+└── mysite/
+    ├── __init__.py
+    ├── asgi.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py
+
+Run the Development Server
+cd mysite
+python manage.py runserver
+Starting development server at http://127.0.0.1:8000/
+
+Create Your First App
+python manage.py startapp appname
+python manage.py startapp students
+students/
+├── admin.py
+├── apps.py
+├── migrations/
+│   └── __init__.py
+├── models.py
+├── tests.py
+└── views.py
+
+Register the App in settings.py
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'students',  # 👈 Add your new app here
+]
+
+Create a View and URL
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to the Students App!")
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+]
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('students.urls')),  # 👈 include app URLs
+]
+
+Run the Server Again
+python manage.py runserver
+Welcome to the Students App!
+
+7. How do you create a Django superuser, and why is it needed?
+
+Superuser in Django
+Log in to the Django Admin Panel
+Add, edit, or delete any model data
+Manage users and permissions
+Access all registered apps in the admin interface
+
+How to Create a Superuser
+python manage.py createsuperuser
+Username: admin
+Email address: admin@example.com
+Password: ********
+Password (again): ********
+Superuser created successfully.
+python manage.py runserver
+
+Extra Tips
+python manage.py changepassword <username>
+is_staff = True
+is_superuser = True
+is_active = True
+
+8. Describe the flow of an HTTP request from URL to template in Django.
+
+Overview: The Journey of an HTTP Request in Django
+Browser (Request)
+   ↓
+urls.py (URL Dispatcher)
+   ↓
+views.py (Business Logic)
+   ↓
+models.py (Database Interaction)
+   ↓
+templates/ (HTML Rendering)
+   ↓
+Browser (Response)
+
+Detailed Step-by-Step Flow
+GET /students/
+# students/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.student_list, name='student_list'),
+]
+
+View Function Executes (views.py)
+
+The view is a Python function that contains your business logic.
+
+It may:
+Fetch data from the database via models
+Perform calculations or checks
+Pass data to a template for rendering
+# students/views.py
+from django.shortcuts import render
+from .models import Student
+
+def student_list(request):
+    students = Student.objects.all()
+    return render(request, 'student_list.html', {'students': students})
+
+Model Interaction (models.py)
+# students/models.py
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+
+Template Rendering (templates/)
+The render() function combines:
+The HTML template file (student_list.html)
+The context data ({'students': students})
+<!-- templates/student_list.html -->
+<h2>Student List</h2>
+<ul>
+  {% for s in students %}
+    <li>{{ s.name }} - {{ s.age }}</li>
+  {% endfor %}
+</ul>
+
+Response Back to Browser
+Django returns an HttpResponse (the rendered HTML page).
+The browser receives it and displays the formatted webpage to the user.
+
+9. How can you render a basic HTML page using Django’s template engine?
+
+What Is the Django Template Engine?
+Django’s template engine allows you to:
+Write dynamic HTML pages.
+Insert data from your views using placeholders like {{ variable }}.
+Use logic like loops and conditions with {% ... %} tags.
+
+Step-by-Step: Rendering an HTML Page
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html')
+
+Create a Template File
+students/
+ ├── templates/
+ │    └── home.html
+ ├── views.py
+ ├── urls.py
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome Page</title>
+</head>
+<body>
+    <h1>Welcome to Django!</h1>
+    <p>This is a basic HTML page rendered using Django’s template engine.</p>
+</body>
+</html>
+
+Map the View to a URL
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+]
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('students.urls')),
+]
+
+Run the Server
+python manage.py runserver
+
+Adding Dynamic Data (Optional)
+def home(request):
+    context = {'name': 'Sriram', 'course': 'Django Basics'}
+    return render(request, 'home.html', context)
+<h1>Hello, {{ name }}!</h1>
+<p>Welcome to {{ course }}.</p>
+
+
