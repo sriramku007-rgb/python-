@@ -1,0 +1,423 @@
+1. What is CRUD in Django and why is it important?
+
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+
+Create
+Student.objects.create(name="Alice", age=20)
+
+Read
+students = Student.objects.all()          
+student = Student.objects.get(id=1)       
+
+Update
+student = Student.objects.get(id=1)
+student.age = 21
+student.save()
+
+Delete
+student = Student.objects.get(id=1)
+student.delete()
+
+Django also provides Class-Based Views (CBVs) for CRUD operations:
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
+2. How do Function-Based Views (FBV) differ from Class-Based Views (CBV)?
+
+Function-Based Views (FBV)
+
+Written as simple Python functions.
+
+Each function handles one request (GET, POST, etc.).
+
+You use conditional logic inside the function to respond differently based on the request method.
+from django.shortcuts import render, redirect
+from .models import Student
+
+def student_list(request):
+    if request.method == 'GET':
+        students = Student.objects.all()
+        return render(request, 'students/list.html', {'students': students})
+
+Class-Based Views (CBV)
+
+Written as Python classes, each representing a specific type of view.
+
+You define class methods (like get(), post(), etc.) to handle different HTTP requests.
+
+Django provides generic CBVs that already implement common CRUD patterns.
+
+from django.views import View
+from django.shortcuts import render
+from .models import Student
+
+class StudentListView(View):
+    def get(self, request):
+        students = Student.objects.all()
+        return render(request, 'students/list.html', {'students': students})                
+
+from django.views.generic import ListView
+from .models import Student
+
+class StudentListView(ListView):
+    model = Student
+    template_name = 'students/list.html'
+
+Advantages
+Reusable and more organized — great for complex apps.
+Encourages code reusability through inheritance and mixins.
+Cleaner separation for different HTTP methods.
+
+ Disadvantages
+Slightly harder to read for beginners.
+Involves more abstraction — not as explicit as FBVs.
+
+3. Write a simple Django FBV to display all employee records.
+
+Create the Model (models.py)
+from django.db import models
+
+class Employee(models.Model):
+    name = models.CharField(max_length=100)
+    position = models.CharField(max_length=100)
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+Step 2: Create the View (views.py)
+from django.shortcuts import render
+from .models import Employee
+
+def employee_list(request):
+    employees = Employee.objects.all()  # Fetch all employee records
+    return render(request, 'employees/employee_list.html', {'employees': employees})
+
+
+Explanation
+
+Employee.objects.all() fetches all employee records from the database.
+render() sends that data to an HTML template for display.
+'employees/employee_list.html' is the template file to show the records.
+
+Step 3: Configure the URL (urls.py)
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('employees/', views.employee_list, name='employee_list'),
+]
+
+Step 4: Create the Template (templates/employees/employee_list.html)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee List</title>
+</head>
+<body>
+    <h2>All Employees</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Salary</th>
+        </tr>
+        {% for emp in employees %}
+        <tr>
+            <td>{{ emp.name }}</td>
+            <td>{{ emp.position }}</td>
+            <td>{{ emp.salary }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No employees found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+
+Output
+When you visit http://127.0.0.1:8000/employees/,
+you’ll see a table displaying all employee records from your database.
+
+4. How can you use Django forms to handle user input safely?
+
+Define a Form (forms.py)
+from django import forms
+
+class EmployeeForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    salary = forms.DecimalField(max_digits=10, decimal_places=2)
+
+Use the Form in a View (views.py)
+from django.shortcuts import render
+from .forms import EmployeeForm
+
+def employee_form_view(request):
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            # Safe to use cleaned data
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            salary = form.cleaned_data['salary']
+            # You can now save to the database or process data
+            return render(request, 'success.html', {'name': name})
+    else:
+        form = EmployeeForm()
+
+    return render(request, 'employee_form.html', {'form': form})
+
+Create a Template (employee_form.html)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Form</title>
+</head>
+<body>
+    <h2>Enter Employee Details</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
+
+5. Explain the steps to create, update, and delete records in Django.
+
+Step 1: Define the Model (models.py)
+from django.db import models
+
+class Employee(models.Model):
+    name = models.CharField(max_length=100)
+    position = models.CharField(max_length=100)
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+Step 2: Create (Add a Record)
+
+You can create a record in two main ways — using the ORM or using a Django form.
+
+Using ORM in views.py:
+from .models import Employee
+
+def add_employee(request):
+    new_emp = Employee(name="John Doe", position="Manager", salary=75000)
+    new_emp.save()  # Saves record to the database
+    return HttpResponse("Employee added successfully!")
+
+Step 3: Read (Retrieve Records)
+
+employees = Employee.objects.all()
+emp = Employee.objects.get(id=1)
+developers = Employee.objects.filter(position="Developer")
+
+Step 4: Update (Modify a Record)
+emp = Employee.objects.get(id=1)
+emp.salary = 80000  
+emp.save()          
+
+Step 5: Delete (Remove a Record)
+emp = Employee.objects.get(id=1)
+emp.delete()
+
+Step 6: (Optional) — Using Forms for Create & Update
+
+You can use ModelForms to make adding and editing data safer and easier.
+
+from django import forms
+from .models import Employee
+
+class EmployeeForm(forms.ModelForm)
+    class Meta:
+        model = Employee
+        fields = ['name', 'position', 'salary']
+
+
+Then in your views.py
+
+def employee_create(request):
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()  # Creates new record
+            return redirect('employee_list')
+    else:
+        form = EmployeeForm()
+    return render(request, 'employee_form.html', {'form': form})
+
+For updating
+
+def employee_update(request, id):
+    emp = Employee.objects.get(id=id)
+    form = EmployeeForm(request.POST or None, instance=emp)
+    if form.is_valid():
+        form.save()  # Updates record
+        return redirect('employee_list')
+    return render(request, 'employee_form.html', {'form': form})
+
+6. What is the use of CSRF token in Django forms?
+
+CSRF Token
+CSRF stands for Cross-Site Request Forgery — a type of web attack where a malicious website tricks a logged-in user into performing an unwanted 
+action (like submitting a form or making a request) on another site where they’re authenticated.
+To prevent this, Django uses a CSRF token — a unique, secret value that ensures form submissions come only from your trusted website.
+
+When Django renders a form using {% csrf_token %},
+it generates a unique token and includes it as a hidden field in the HTML form.
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="name">
+    <button type="submit">Submit</button>
+</form>
+
+Django Template
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+
+Without CSRF Token
+If you forget {% csrf_token %} in your form, Django will raise:
+403 Forbidden – CSRF verification failed. Request aborted.
+
+7. How do you validate user input before saving it to the database?
+
+Django Forms
+
+When you use a Django Form or ModelForm, Django automatically validates user input before saving.
+
+Example: Using a ModelForm
+from django import forms
+from .models import Employee
+
+class EmployeeForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = ['name', 'email', 'salary']
+
+    def clean_salary(self):
+        salary = self.cleaned_data.get('salary')
+        if salary < 0:
+            raise forms.ValidationError("Salary cannot be negative.")
+        return salary
+
+In the View (views.py)
+from django.shortcuts import render, redirect
+from .forms import EmployeeForm
+
+def add_employee(request):
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():   
+            form.save()       
+            return redirect('employee_list')
+    else:
+        form = EmployeeForm()
+    return render(request, 'employee_form.html', {'form': form})
+
+8. What’s the purpose of redirecting after a POST request in Django?
+
+views.py
+from django.shortcuts import render, redirect
+from .forms import EmployeeForm
+
+def add_employee(request):
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()                  
+            return redirect('employee_list') 
+    else:
+        form = EmployeeForm()
+    return render(request, 'employee_form.html', {'form': form})
+
+urls.py
+path('employees/', views.employee_list, name='employee_list'),
+path('employees/add/', views.add_employee, name='add_employee'),
+
+9. How do you connect a template to a view to display database results?
+
+Create a Model (models.py)
+
+This model represents the data you’ll fetch from the database.
+
+from django.db import models
+
+class Employee(models.Model):
+    name = models.CharField(max_length=100)
+    position = models.CharField(max_length=100)
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+Write a View to Fetch Data (views.py)
+
+The view retrieves data using Django ORM and passes it to a template via context.
+
+from django.shortcuts import render
+from .models import Employee
+
+def employee_list(request):
+    employees = Employee.objects.all()  # Fetch all records from database
+    return render(request, 'employees/employee_list.html', {'employees': employees})
+Create a Template (templates/employees/employee_list.html)
+
+The template displays the data using Django’s template language.
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee List</title>
+</head>
+<body>
+    <h2>All Employees</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Salary</th>
+        </tr>
+        {% for emp in employees %}
+        <tr>
+            <td>{{ emp.name }}</td>
+            <td>{{ emp.position }}</td>
+            <td>{{ emp.salary }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No employees found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+
+Map the URL to the View (urls.py)
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('employees/', views.employee_list, name='employee_list'),
+]
+
+Run the Server and View the Page
+
+Now start your Django server:
+
+python manage.py runserver
+
+
+Then open your browser and visit:
+http://127.0.0.1:8000/employees/
+

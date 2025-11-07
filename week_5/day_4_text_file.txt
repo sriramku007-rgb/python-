@@ -1,0 +1,337 @@
+1. What is Django ORM and how does it simplify database interaction?
+
+from myapp.models import Student
+student = Student(name="Alice", age=20)
+student.save()
+students = Student.objects.all()
+young_students = Student.objects.filter(age__lt=21)
+
+No need to write SQL manually
+You can perform queries, inserts, updates, and deletes using Python methods.
+
+Database independence
+You can switch databases (e.g., from SQLite to PostgreSQL) by just changing settings — no need to rewrite queries.
+
+Automatic table creation
+Models are converted into tables using Django’s migration system (python manage.py makemigrations and migrate).
+
+Cleaner and more maintainable code
+Since logic is written in Python, it’s easier to read, debug, and maintain.
+
+Security
+ORM automatically escapes inputs, helping prevent SQL injection attacks.
+
+2. How do you define a model in Django? Give an example.
+
+You define models inside the models.py file of a Django app.
+All models must inherit from django.db.models.Model.
+
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+    enrolled_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+python manage.py makemigrations
+python manage.py migrate
+
+3. What is the role of migrations in Django?
+
+Keep the database in sync with models
+When you change your models.py, migrations update the database tables accordingly.
+
+Avoid manual SQL
+You don’t have to write SQL commands for altering tables — Django generates them automatically.
+
+Track schema changes over time
+Each migration file records what changed, making it easy to roll back or review changes later.
+
+Collaborate easily
+Multiple developers can apply the same migration files to keep their databases consistent.
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    grade = models.CharField(max_length=10)
+
+Run:
+python manage.py makemigrations
+python manage.py migrate
+
+4. How do you apply migrations to create database tables?
+
+Migration Files
+Run this command after defining or modifying models in your models.py:
+
+python manage.py makemigrations
+
+Scans your Django app for model changes.
+
+Creates migration files (usually stored in the app’s migrations/ folder).
+
+These files describe the database changes (like creating tables, adding fields, etc.).
+
+Migrations for 'students':
+  students/migrations/0001_initial.py
+    - Create model Student
+
+Migrations to the Database
+
+python manage.py migrate
+Executes the SQL commands described in the migration files.
+Actually creates or updates tables in your database.
+Keeps track of which migrations have been applied (in a special table called django_migrations).
+
+Applying students.0001_initial... OK
+
+Example Workflow
+
+Suppose you created this model:
+
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+
+    python manage.py makemigrations
+python manage.py migrate
+
+5. What are Django model field types? Give examples.
+
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
+    joined_on = models.DateField(auto_now_add=True)
+    gpa = models.DecimalField(max_digits=4, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+CharField	Stores short text strings. Must have a max_length.	name = models.CharField(max_length=100)
+TextField	Stores long text (no length limit).	description = models.TextField()
+IntegerField	Stores integer numbers.	age = models.IntegerField()
+FloatField	Stores floating-point numbers.	price = models.FloatField()
+DecimalField	Stores fixed-precision decimal numbers (useful for money).	salary = models.DecimalField(max_digits=8, decimal_places=2)
+BooleanField	Stores True/False values.	is_active = models.BooleanField(default=True)
+DateField	Stores a date.	birth_date = models.DateField()
+DateTimeField	Stores both date and time.	created_at = models.DateTimeField(auto_now_add=True)
+EmailField	Stores valid email addresses.	email = models.EmailField(unique=True)
+URLField	Stores URLs.	website = models.URLField(blank=True)
+FileField	Stores uploaded files (needs MEDIA settings).	resume = models.FileField(upload_to='resumes/')
+ImageField	Stores image files (requires Pillow library).	photo = models.ImageField(upload_to='photos/')
+ForeignKey	Defines a many-to-one relationship.	course = models.ForeignKey(Course, on_delete=models.CASCADE)
+OneToOneField	Defines a one-to-one relationship.	profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+ManyToManyField	Defines a many-to-many relationship.	subjects = models.ManyToManyField(Subject)
+AutoField	Auto-incrementing primary key (usually added automatically).	id = models.AutoField(primary_key=True)
+
+6. How do you create relationships between models (OneToMany, ManyToMany)?
+
+One-to-Many Relationship (ForeignKey)
+
+A One-to-Many relationship means one record in one table can be linked to many records in another.
+
+Each Department can have many Students,
+but each Student belongs to one Department.
+from django.db import models
+
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+Many-to-Many Relationship (ManyToManyField)
+
+A Many-to-Many relationship means multiple records in one model can be linked to multiple records in another.
+Each Student can enroll in many Courses,
+and each Course can have many Students
+
+class Course(models.Model):
+    title = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.title
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    courses = models.ManyToManyField(Course)
+
+    def __str__(self):
+        return self.name
+
+courses = models.ManyToManyField(Course)
+creates a bridge (intermediate) table automatically (e.g., student_courses).
+
+student.courses.add(course)
+
+student.courses.all()
+
+course.student_set.all()
+
+One-to-One Relationship (OneToOneField) — for completeness
+
+Each record in one table is linked to exactly one record in another.
+Each Student has one StudentProfile.
+class StudentProfile(models.Model):
+    student = models.OneToOneField('Student', on_delete=models.CASCADE)
+    address = models.CharField(max_length=200)
+
+7. What is the Django admin interface and how can it be customized?
+
+It’s automatically generated from your models.
+It provides a ready-to-use interface for creating, viewing, updating, and deleting records in the database.
+It’s located at /admin/ by default.
+Make sure it’s included in INSTALLED_APPS (in settings.py):
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'your_app_name',
+]
+
+
+Run migrations (to set up tables for admin and authentication):
+
+python manage.py migrate
+
+Create a superuser (admin login account):
+
+python manage.py createsuperuser
+
+Run the server and go to:
+
+http://127.0.0.1:8000/admin/
+
+Log in with your superuser credentials — you’ll see your app models listed there.
+
+Models in the Admin
+
+To make your models appear in the admin dashboard, register them in your app’s admin.py file:
+
+from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)
+Customizing the Admin Interface
+
+You can make the admin more user-friendly and informative using a ModelAdmin class.
+
+from django.contrib import admin
+from .models import Student
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email', 'joined_on')
+    search_fields = ('name', 'email')
+    list_filter = ('joined_on', 'age')
+    ordering = ('name',)
+
+Additional Customization Options
+
+Editable fields in list view:
+
+list_editable = ('age',)
+
+
+Fields grouping in the form:
+
+fields = ('name', 'email', 'age')
+
+
+Custom admin page titles:
+
+admin.site.site_header = "School Management Admin"
+admin.site.site_title = "School Admin Portal"
+admin.site.index_title = "Welcome to the Dashboard"
+
+8. How do you register models in the Django admin panel?
+
+Registering Models in Admin
+1. Open your app’s admin.py file
+
+Each Django app automatically has this file created when the app is made.
+
+2. Import your model
+from django.contrib import admin
+from .models import Student
+
+3. Register the model
+
+There are two main ways to register a model:
+
+🔸 Method 1: Simple Registration
+
+This is the quickest way to make your model appear in the admin interface.
+
+admin.site.register(Student)
+
+Using a ModelAdmin Class (for customization)
+
+If you want to control how your model is displayed in the admin (columns, filters, search, etc.), define a ModelAdmin class.
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')  
+    search_fields = ('name', 'email')        
+    list_filter = ('age',)              
+
+Alternative Syntax (without decorator)
+
+You can also register it like this:
+
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')
+
+admin.site.register(Student, StudentAdmin)
+Registering Multiple Models
+
+You can register more than one model:
+
+from .models import Student, Course, Teacher
+
+admin.site.register([Student, Course, Teacher])
+
+9. What happens when you change a model field and re-run migrations?
+
+You change a model field
+Example — you update the Student model:
+age = models.IntegerField()
+age = models.PositiveIntegerField()
+
+Run makemigrations
+python manage.py makemigrations
+Django scans your models and compares them with the last migration state.
+It detects the field change.
+It generates a new migration file describing what changed (e.g., “Alter field age on student”).
+Migrations for 'students':
+  students/migrations/0002_alter_student_age.py
+    - Alter field age on student
+
+Run migrate
+python manage.py migrate
+Django executes SQL commands to alter the database table.
+It modifies the column in the database to reflect the new field type or options.
+Example SQL (behind the scenes):
+ALTER TABLE students_student ALTER COLUMN age TYPE integer CHECK (age >= 0);
+
